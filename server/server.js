@@ -1,5 +1,7 @@
 // server/server.js
 require('dotenv').config();
+const fs = require('fs');
+const https = require('https');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -16,23 +18,21 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration
 const allowedOrigins = [
-  'http://localhost:5173', 
-  'http://44.211.214.190',  // EC2 public IP
-  'https://d1uk64qtttiyx.cloudfront.net', // CloudFront domain
-  // Add any other domains you need here, like:
-  // 'https://yourdomain.com'
+  'http://localhost:5173',
+  'http://44.211.214.190',
+  'https://d1uk64qtttiyx.cloudfront.net', // Add if using CloudFront
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true); // Allow the request
+      callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS')); // Block the request
+      callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Define allowed methods
-  credentials: true,  // Enable credentials for cookie/session support if needed
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 }));
 
 app.use(express.json());
@@ -65,6 +65,13 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// HTTPS options
+const httpsOptions = {
+  key: fs.readFileSync('/etc/ssl/private/selfsigned.key'),
+  cert: fs.readFileSync('/etc/ssl/certs/selfsigned.crt'),
+};
+
+// Start HTTPS server
+https.createServer(httpsOptions, app).listen(PORT, () => {
+  console.log(`🚀 HTTPS Server running on port ${PORT}`);
 });
