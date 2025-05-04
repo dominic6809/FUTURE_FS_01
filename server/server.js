@@ -13,14 +13,14 @@ const blogRoutes = require('./routes/blogs');
 const contactRoutes = require('./routes/contact');
 const { authenticateToken } = require('./middleware/auth');
 const adminRoutes = require('./routes/admin');
-
 const app = express();
 const HTTP_PORT = process.env.PORT || 5000;
-// const HTTPS_PORT = 443;
+const HTTPS_PORT = process.env.HTTPS_PORT || 5000; // Using 5000 for development, 443 for production
 
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:3000',
   'http://44.211.214.190',
   'https://44.211.214.190',
   'https://d1uk64qtttiyx.cloudfront.net',
@@ -31,6 +31,7 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -50,7 +51,7 @@ mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// API Routes
+// Route prefix - notice no duplicated /api here
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/blogs', blogRoutes);
@@ -71,7 +72,12 @@ const httpsOptions = {
   cert: fs.readFileSync('/etc/ssl/certs/selfsigned.crt'),
 };
 
-// Start HTTP (optional fallback)
+// Start HTTP server (optional fallback)
 http.createServer(app).listen(HTTP_PORT, () => {
   console.log(`🚀 HTTP Server running on port ${HTTP_PORT}`);
+});
+
+// Start HTTPS server
+https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
+  console.log(`🔒 HTTPS Server running on port ${HTTPS_PORT}`);
 });
