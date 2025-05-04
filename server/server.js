@@ -17,21 +17,22 @@ const PORT = process.env.PORT || 5000;
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:5173', 
-  'http://44.211.214.190',  
-  // 'http://44.211.214.190:5000', 
+  'http://44.211.214.190',  // EC2 public IP
+  'https://d1uk64qtttiyx.cloudfront.net', // CloudFront domain
+  // Add any other domains you need here, like:
   // 'https://yourdomain.com'
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
+      callback(null, true); // Allow the request
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('Not allowed by CORS')); // Block the request
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true  // Enable credentials for cookie/session support if needed
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Define allowed methods
+  credentials: true,  // Enable credentials for cookie/session support if needed
 }));
 
 app.use(express.json());
