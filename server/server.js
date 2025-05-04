@@ -16,14 +16,14 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 const HTTP_PORT = process.env.PORT || 5000;
-const HTTPS_PORT = 443;
+// const HTTPS_PORT = 443;
 
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:5173',
   'http://44.211.214.190',
   'https://44.211.214.190',
-  'https://d1uk64qtttiyx.cloudfront.net', // If using CloudFront
+  'https://d1uk64qtttiyx.cloudfront.net',
 ];
 
 app.use(cors({
@@ -75,8 +75,3 @@ const httpsOptions = {
 http.createServer(app).listen(HTTP_PORT, () => {
   console.log(`🚀 HTTP Server running on port ${HTTP_PORT}`);
 });
-
-// Start HTTPS
-// https.createServer(httpsOptions, app).listen(HTTPS_PORT, () => {
-//   console.log(`🔐 HTTPS Server running on port ${HTTPS_PORT}`);
-// });
