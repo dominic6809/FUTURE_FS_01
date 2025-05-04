@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-// const authRoutes = require('./routes/auth');
+const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const blogRoutes = require('./routes/blogs');
 const contactRoutes = require('./routes/contact');
@@ -14,16 +14,26 @@ const adminRoutes = require('./routes/admin');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-// Configure CORS to allow requests from your frontend domain
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'http://44.211.214.190',  
+  // 'http://44.211.214.190:5000', 
+  // 'https://yourdomain.com'
+];
+
 app.use(cors({
-  origin: [
-    'http://portfolio-dominic-muuo.s3-website-us-east-1.amazonaws.com',
-    'http://localhost:3000', // For local development
-    // Add any other domains you need to allow
-  ],
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true  // Enable credentials for cookie/session support if needed
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -39,11 +49,11 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // API Routes
-app.use('/auth', require('./routes/auth'));
+app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/contact', contactRoutes);
-app.use('/api/admin', adminRoutes); 
+app.use('/api/admin', adminRoutes);
 
 // Serve static assets if in production
 if (process.env.NODE_ENV === 'production') {
